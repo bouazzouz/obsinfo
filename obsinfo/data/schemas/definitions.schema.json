@@ -6,10 +6,10 @@
     },
     "author" : {
         "type": "object",
-        "required": ["first_name", "last_name"],
+        "required": ["name"],
         "properties": {
-          "first_name": {"type": "string"},
-          "last_name": {"type": "string"},
+          "name": {"type": "string"},
+          "agency": {"type": "string"},
           "email": {"type": "string", "format": "email"},
           "phones": {"type": "array", "items": {"$ref": "#/phone"}}
         }
@@ -26,7 +26,17 @@
         "type" : "array",
         "description" : "list of comments (should be included in output metadata)",
         "minItems": 0,
-        "items" : { "type" : "string", "minLength" : 1 }
+        "items" :{"$ref": "#/comment"}
+    },
+    "comment": {
+        "type" : "object", 
+        "required": ["comment"],
+        "properties" : {
+                        "comment":{"type":"string"},
+                        "BeginEffectiveTime" :{"$ref":"#/date-time-Z"},
+                        "EndEffectiveTime" :{"$ref":"#/date-time-Z"},
+                        "authors" :{"type":"array","items": {"$ref": "#/author"}}
+        }   
     },
     "date": {
         "type": "string",
@@ -68,9 +78,13 @@
         "description" : "open structure for values and fields that do not contribute to (current) FDSN data or metadata"
     },
     "phone": {
-        "type": "string",
+        "type": "object",
         "description": "...",
-        "pattern": "^[0-9]+-[0-9]+$"
+        "properties":{
+            "CountryCode": "Integer",
+            "AreaNumber":"Integer" ,
+            "PhoneNumber": {"type":"string", "pattern": "^[0-9]+-[0-9]+$"}
+        }
     },
     "reference_name": {
         "type": "string",

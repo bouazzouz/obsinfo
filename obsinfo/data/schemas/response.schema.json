@@ -39,11 +39,6 @@
         "response_stage": {
             "type" : "object",
             "description" : "Response type",
-            "required" : [
-                "input_units",
-                "output_units",
-                "gain"
-            ],
             "properties": {
                 "input_units":        { "$ref" : "#/definitions/stage_io_units" },
                 "output_units":       { "$ref" : "#/definitions/stage_io_units" },
@@ -59,7 +54,7 @@
                 "notes" :             {"$ref" : "definitions.schema.json#/notes"},
                 "extras":             {"$ref" : "#/definitions/extras"}
             },
-		    "additionalProperties" : false
+		    "additionalProperties" : true
         },
         "filter": {
             "anyOf" : [

@@ -50,8 +50,8 @@
             ],
             "properties" : {
                 "code" :       {"type" : "string" ,  "description": "FDSN network code or 'XX'"},
-                "start_date":  {"$ref" : "definitions.schema.json#/date" },
-                "end_date":    {"$ref" : "definitions.schema.json#/date" },
+                "start_date":  {"$ref" : "definitions.schema.json#/date-time-Z" },
+                "end_date":    {"$ref" : "definitions.schema.json#/date-time-Z" },
                 "description": {"type" : "string" , "description": "Should use FDSN 'network name'"},
                 "comments" :   {"$ref" : "definitions.schema.json#/comments" }
             }
@@ -73,8 +73,7 @@
                 "start_date",
                 "end_date",
                 "instrument",
-                "locations",
-                "clock_corrections"
+                "locations"
             ],
             "properties": {
                 "notes" :               {"$ref" : "definitions.schema.json#/comments"},
@@ -82,13 +81,13 @@
                 "site" :                {"type" : "string", "minLength" : 1 },
                 "start_date" :          {"$ref" : "definitions.schema.json#/date-time-Z" },
                 "end_date" :            {"$ref" : "definitions.schema.json#/date-time-Z" },
-                "instrument" :          {"$ref" : "#/definitions/instrument" },
+                "instruments" :          {"$ref" : "#/definitions/instruments" },
                 "locations" :           {"$ref" : "#/definitions/locations" },
                 "clock_corrections" :   {"$ref" : "#/definitions/clock_corrections"},
 	            "extras" :              {"$ref" : "definitions.schema.json#/extras"},
                 "sensors":              {"$ref" : "#/definitions/sensors"}
             },
-            "additionalProperties": false
+            "additionalProperties": true
         },
         "locations" : {
             "type" : "object",
@@ -104,13 +103,12 @@
                 "uncertainties.m",
                 "depth.m",
                 "geology",
-                "vault",
-                "localisation_method"
+                "vault"
             ],
             "properties": {
                 "position" :        {"$ref" : "#/definitions/GeoJSON" },
                 "uncertainties.m" : {"$ref" : "#/definitions/GeoJSON_m" },
-                "depth.m" :           {"type" : "number", "description" : "depth beneath the seafloor (m)"},
+                "depth.m" :          {"type" : "number", "description" : "depth beneath the seafloor (m)"},
                 "geology" :         {"type" : "string", "default" : "unknown"},
                 "vault" :           {"type" : "string", "default" : "Sea floor"},
                 "localisation_method" : {
@@ -235,27 +233,30 @@
                 { "type" : "null" }
             ]
         },
-        "instrument" : {
-            "type": "object",
+        "instruments" : {
+            "type": "array",
             "description": "Instrument reference",
-            "required": [
-                "reference_code", 
-                "serial_number",
-		        "station_location",
-                "channel_codes_locations"
-            ],
-            "properties" : {
-                "reference_code":    {"$ref" : "#/definitions/reference_code" },
-                "serial_number":     {"$ref" : "#/definitions/serial_number"},
-                "station_location" :       {"$ref" : "#/definitions/location_code"},
-                "channel_codes_locations": {
-                    "type" : "object",
-                    "description" : "specification by channel_location pairs",
-                    "patternProperties": {
-                        "^[A-Z]{3}_[0-9]{2}$": { "$ref": "#/definitions/channel_specification" }
-                    }
+            "items" : { 
+                "type" : "object", 
+                "required": [
+                    "reference_code", 
+                    "serial_number",
+                    "channel_codes_locations"
+                ],
+                "properties" : {
+                    "reference_code":    {"$ref" : "#/definitions/reference_code" },
+                    "serial_number":     {"$ref" : "#/definitions/serial_number"},
+                    "station_location" :       {"$ref" : "#/definitions/location_code"},
+                    "channel_codes_locations": {
+                        "type" : "object",
+                        "description" : "specification by channel_location pairs",
+                        "patternProperties": {
+                            "^[A-Z]{3}_[0-9]{2}$": { "$ref": "#/definitions/channel_specification" }
+                        }
+                    } 
                 }
-            }
+            },
+            "minLength" : 1
         },
         "location_code" : {
             "type" : "string",
@@ -275,7 +276,7 @@
                 "sensor" : { "type" : "object" },
                 "das_component" : { "type" : "string" }
             },
-            "additionalProperties" : false
+            "additionalProperties" : true
         },
         "functional_component": {
             "type": "object",
