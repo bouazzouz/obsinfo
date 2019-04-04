@@ -85,7 +85,7 @@ class instrument_component:
             stages,temp=load_information_file(superstage_file+root_symbol+'response/stages',self.basepath)
             for stage in stages:
                 # IF STAGE FILTER IS A "$ref", READ AND INJECT THE REFERRED FILE
-                if '$ref' in stage['filter']:
+                if 'filter' in stage and '$ref' in stage['filter']:
                     # READ REFERRED FILE
                     filter_ref = os.path.join(\
                             os.path.split(superstage_file)[0],stage['filter']['$ref'])

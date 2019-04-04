@@ -23,6 +23,6 @@ filter:
   - [-28.1704,  0]
   - [-2.419155,  0]
 notes:
-- ' # Nettoyage Davoltoltoltid + Glenn 19 05 15'
-- '# STS2-III (third generation) poles and zeroes'
+- comment: ' # Nettoyage Davoltoltoltid + Glenn 19 05 15'
+- comment: '# STS2-III (third generation) poles and zeroes'
 

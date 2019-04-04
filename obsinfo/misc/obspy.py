@@ -34,7 +34,7 @@ def response_with_sensitivity(resp_stages,sensitivity,debug=False):
     true_sensitivity_input_units=None
     
     # HAVE TO MAKE OBSPY THINK ITS M/S FOR IT TO CALCULATE SENSITIVITY CORRECTLY FOR PRESSURE
-    if "PA" in sensitivity['input_units'].upper():
+    if sensitivity['input_units'] and "PA" in sensitivity['input_units'].upper():
         true_sensitivity_input_units=sensitivity['input_units']
         sensitivity['input_units']='M/S'
     response=inventory.response.Response(
@@ -82,7 +82,8 @@ def response(my_response,debug=False):
             
         units,sensitivity = __get_units_sensitivity(stage,sensitivity,i_stage)            
         
-        resp_type=stage['filter']['type']
+        #resp_type=stage['filter']['type']
+        resp_type = stage['Transfer_function_type']
         if debug:
             print("i_stage=",i_stage,", resp_type=",resp_type)
             
@@ -91,14 +92,14 @@ def response(my_response,debug=False):
             resp_stages.append(__make_poles_zeros(stage,i_stage,units))
         elif resp_type=="COEFFICIENTS" :
             resp_stages.append(__make_coefficients(stage,i_stage,units))
-        elif resp_type=="FIR" :
+        elif resp_type in ["FIR","FIR_SYM_1","FIR_SYM_1"] :
             resp_stages.append(__make_FIR(stage,i_stage,units))
         elif resp_type=="AD_CONVERSION" : 
             resp_stages.append(__make_DIGITAL(stage,i_stage,units))
         elif resp_type=="ANALOG" :
             resp_stages.append(__make_ANALOG(stage,i_stage,units))
         else:
-            raise TypeError('UNKNOWN STAGE RESPONSE TYPE: {}'.format(resp['type']))
+            raise TypeError('UNKNOWN STAGE RESPONSE TYPE: {}'.format(resp_type['type']))
     response=response_with_sensitivity(resp_stages,sensitivity)
     if debug:
         print(response)
@@ -107,12 +108,12 @@ def response(my_response,debug=False):
 def __get_units_sensitivity(stage,sensitivity,i_stage):
     # Get Units
     units=dict()
-    temp=stage.get('input_units',{})
-    units['input']= temp.get('name',None)
-    units['input_description']= temp.get('description',None)
-    temp=stage.get('output_units',{})
-    units['output']= temp.get('name',None)
-    units['output_description']= temp.get('description',None)
+    #temp=stage.get('Input_units',{})
+    units['input']= stage.get('Input_unit',{})
+    units['input_description']= stage.get('description',None)
+    #temp=stage.get('Output_units',{})
+    units['output']= stage.get('Output_unit',None)
+    units['output_description']= stage.get('description',None)
     
     # Set Sensitivity
     gain_value,gain_frequency=__get_gain(stage)
@@ -166,7 +167,7 @@ def __make_poles_zeros(stage,i_stage,units,debug=False):
             poles = poles,
             input_units_description=units['input_description'],
             output_units_description=units['output_description'],
-            description=stage['description']
+            description=stage['description'] if 'description' in stage else None
         )
 
 def __make_coefficients(stage,i_stage,units,debug=False):
@@ -216,11 +217,11 @@ def __make_FIR(stage,i_stage,units,debug=False):
             i_stage,
             gain_value, gain_frequency,
             'COUNTS', 'COUNTS',
-            symmetry= resp['symmetry'].upper(),
+            symmetry= resp['symmetry'].upper() if 'symmetry' in resp else "ODD",
             coefficients = [obspy_types.FloatWithUncertaintiesAndUnit(x) for x in resp['coefficients']],
             input_units_description='Digital Counts',
             output_units_description='Digital Counts',
-            description=stage['description'],
+            description=stage['description'] if 'description' in stage else None,
             decimation_input_sample_rate=decim['input_sr'],
             decimation_factor=decim['factor'],
             decimation_offset=decim['offset'],
@@ -240,7 +241,7 @@ def __make_DIGITAL(stage,i_stage,units,debug=False):
             denominator=[],
             input_units_description=units['input_description'],
             output_units_description=units['output_description'],
-            description=stage['description'],
+            description=stage['description'] if 'description' in stage else None,
             decimation_input_sample_rate=decim['input_sr'],
             decimation_factor=decim['factor'],
             decimation_offset=decim['offset'],
@@ -257,7 +258,7 @@ def __make_ANALOG(stage,i_stage,units,debug=False):
             units['input'], units['output'],
             input_units_description=units['input_description'],
             output_units_description=units['output_description'],
-            description=stage['description'],
+            description=stage['description'] if 'description' in stage else None,
             pz_transfer_function_type = 'LAPLACE (HERTZ)',
             normalization_frequency = 0.,
             normalization_factor = 1.,
@@ -274,17 +275,16 @@ def __make_ANALOG(stage,i_stage,units,debug=False):
 #         )
 
 def __get_gain(stage):
-    gain=stage.get('gain',{})
-    return float(gain.get('value',1.0)), float(gain.get('frequency',0.))
+    return float(stage.get('Sensitivity',1.0)), float(stage.get('Transfer_normalization_frequency',0.))
 
 def __get_decim_parms(stage):
     decim=dict()
-    decim['factor']=int(stage.get('decimation_factor',1))
-    decim['input_sr']=decim['factor']*stage['output_sample_rate']
-    filter=stage['filter']
-    decim['offset']=int(filter.get('offset',0))
-    decim['delay']=float(filter.get('delay', \
-                            float(decim['offset'])/float(decim['input_sr'])))
+    decim['factor']=int(stage.get('Decimation_factor',1))
+    #decim['input_sr']=decim['factor']*stage['output_sample_rate']
+    decim['input_sr']=stage['Input_sampling_interval']
+    #filter=stage['filter']
+    decim['offset']=int(stage.get('offset',0))
+    decim['delay']=float(stage.get('delay', 0))
     return decim
 
 def equipment(equipment,resource_id=None,debug=False):

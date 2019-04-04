@@ -72,7 +72,7 @@
                 "site",
                 "start_date",
                 "end_date",
-                "instrument",
+                "instruments",
                 "locations"
             ],
             "properties": {
