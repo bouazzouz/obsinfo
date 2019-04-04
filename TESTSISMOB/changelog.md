@@ -32,7 +32,7 @@ _**Network**_
 
 **Channel**
 
-- start_date et end_time dans channeles : pour sismob
+- start_date et end_time dans channels : pour sismob
 - localisation_method, clock_corrections : pas pour sismob
 
   
@@ -41,7 +41,7 @@ _**Network**_
 
 - Preamplifier non obligatoire,
 
-- location_code => station_code, On prefere l’avoirdans la stations parce que nous pouvons avoir +ieurs instruments.
+- location_code => station_code, On prefere l’avoir dans la station parce que nous pouvons avoir +ieurs instruments.
 
 **Filter et response**:
 
@@ -67,11 +67,11 @@ _**Network**_
 
 - type de filtre[filter][type] => nous c’est stage[**Transfer_function_type**]
 
-- delay par defaut 0 => vous float(decim['offset'])/float(decim['input_sr']))
+- delay: donner par le constructeur (souvent 0) => vous float(decim['offset'])/float(decim['input_sr']))
 
-- ["FIR","FIR_SYM_1","FIR_SYM_1"] type filter
+- ["FIR","FIR_SYM_1","FIR_SYM_2"] type filter
 
-- symmetry : on l’a pas dans non PZ,
+- Le mot clé symmetry on l’a pas dans non PZ,
 
 - __get_units_sensitivity : modifié selon notre structure .
 - get_gain : gain ==sensitivity
